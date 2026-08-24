@@ -1,3 +1,4 @@
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useId, useRef, useState } from 'react'
 import './Select.css'
 
@@ -31,6 +32,7 @@ export default function Select({
   const typeaheadRef = useRef('')
   const typeaheadTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const listboxId = useId()
+  const reduceMotion = useReducedMotion()
 
   const selectedIndex = Math.max(
     0,
@@ -145,46 +147,54 @@ export default function Select({
         </svg>
       </button>
 
-      {open && (
-        <ul
-          className="select-listbox scroll-fade"
-          role="listbox"
-          id={listboxId}
-          ref={listRef}
-          aria-label={ariaLabel}
-          tabIndex={-1}
-        >
-          {options.map((opt, i) => (
-            <li
-              key={opt.value}
-              id={`${listboxId}-option-${i}`}
-              role="option"
-              aria-selected={opt.value === value}
-              className={`select-option${i === activeIndex ? ' is-active' : ''}${
-                opt.value === value ? ' is-selected' : ''
-              }`}
-              onMouseEnter={() => setActiveIndex(i)}
-              onMouseDown={(e) => {
-                e.preventDefault()
-                commit(i)
-              }}
-            >
-              <span className="select-option-label">{opt.label}</span>
-              {opt.value === value && (
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                  <path
-                    d="M2.5 7.2L5.5 10.2L11.5 3.8"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.ul
+            className="select-listbox scroll-fade"
+            role="listbox"
+            id={listboxId}
+            ref={listRef}
+            aria-label={ariaLabel}
+            tabIndex={-1}
+            initial={reduceMotion ? false : { opacity: 0, y: -4, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={reduceMotion ? undefined : { opacity: 0, y: -4, scale: 0.98 }}
+            transition={
+              reduceMotion ? { duration: 0 } : { duration: 0.14, ease: [0.16, 1, 0.3, 1] }
+            }
+          >
+            {options.map((opt, i) => (
+              <li
+                key={opt.value}
+                id={`${listboxId}-option-${i}`}
+                role="option"
+                aria-selected={opt.value === value}
+                className={`select-option${i === activeIndex ? ' is-active' : ''}${
+                  opt.value === value ? ' is-selected' : ''
+                }`}
+                onMouseEnter={() => setActiveIndex(i)}
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  commit(i)
+                }}
+              >
+                <span className="select-option-label">{opt.label}</span>
+                {opt.value === value && (
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path
+                      d="M2.5 7.2L5.5 10.2L11.5 3.8"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </li>
+            ))}
+          </motion.ul>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

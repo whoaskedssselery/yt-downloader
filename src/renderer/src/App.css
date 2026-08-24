@@ -4,14 +4,18 @@
   padding: 36px 32px 48px;
 }
 
-/* Header */
-
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .app-header h1 {
@@ -71,8 +75,6 @@
   background: var(--warning);
 }
 
-/* Alerts */
-
 .alert {
   display: flex;
   align-items: center;
@@ -88,10 +90,6 @@
 
 .alert:has(.alert-body) {
   align-items: flex-start;
-}
-
-.alert-text-grow {
-  flex: 1;
 }
 
 .alert-icon {
@@ -129,16 +127,9 @@
   color: var(--danger);
 }
 
-.alert-success {
-  background: var(--success-soft);
-  color: var(--success);
-}
-
 .alert .btn {
   flex-shrink: 0;
 }
-
-/* Search row */
 
 .search-row {
   display: flex;
@@ -215,9 +206,6 @@
   text-align: center;
 }
 
-/* Two-pane layout: media on the left, controls on the right — collapses to
-   a single column once the window gets too narrow for both. */
-
 .layout {
   display: grid;
   grid-template-columns: minmax(320px, 1.65fr) minmax(300px, 1fr);
@@ -235,7 +223,6 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  animation: fade-up 0.32s var(--ease-out);
 }
 
 .media-text {
@@ -275,8 +262,8 @@
   bottom: 8px;
   padding: 3px 7px;
   border-radius: 5px;
-  background: rgba(10, 8, 6, 0.78);
-  color: #fff;
+  background: var(--overlay-scrim);
+  color: var(--on-solid);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
@@ -292,17 +279,6 @@
   overflow: hidden;
 }
 
-.media-uploader {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-  font-size: 13.5px;
-  color: var(--text-tertiary);
-}
-
-/* Control pane */
-
 .control-pane {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -312,7 +288,6 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  animation: fade-up 0.32s var(--ease-out) 0.05s backwards;
 }
 
 .control-body {
@@ -320,27 +295,6 @@
   flex-direction: column;
   gap: 18px;
 }
-
-@keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .media-pane,
-  .control-pane {
-    animation: none;
-  }
-}
-
-/* Segmented control — a sliding thumb behind the active option rather than
-   a static background swap. */
 
 .segmented {
   position: relative;
@@ -361,7 +315,6 @@
   border-radius: 6px;
   background: var(--surface-hover);
   box-shadow: inset 0 0 0 1px var(--border-strong);
-  transition: transform 0.25s var(--ease-out);
 }
 
 .segmented-option {
@@ -391,17 +344,10 @@
   color: var(--text);
 }
 
-/* Fields */
-
 .field {
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-
-.field-row {
-  display: flex;
-  gap: 10px;
 }
 
 .field-stack {
@@ -409,24 +355,6 @@
   flex-direction: column;
   gap: 14px;
 }
-
-.field-grow {
-  flex: 1;
-  min-width: 0;
-}
-
-.field-narrow {
-  width: 140px;
-  flex-shrink: 0;
-}
-
-.field-label {
-  font-size: 13px;
-  color: var(--text-tertiary);
-  font-weight: 500;
-}
-
-/* Folder row */
 
 .folder-row {
   display: flex;
@@ -454,8 +382,6 @@
   color: var(--text-secondary);
 }
 
-/* Progress */
-
 .download-progress {
   display: flex;
   flex-direction: column;
@@ -474,7 +400,6 @@
   height: 100%;
   border-radius: 999px;
   background: var(--accent);
-  transition: width 0.3s var(--ease-out);
 }
 
 .progress-info {

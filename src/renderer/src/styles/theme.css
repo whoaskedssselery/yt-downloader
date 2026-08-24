@@ -22,7 +22,13 @@
   --radius-sm: 7px;
   --shadow-panel: 0 14px 32px -14px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.3);
   --shadow-pop: 0 10px 24px -8px rgba(0, 0, 0, 0.65), 0 2px 6px rgba(0, 0, 0, 0.4);
+  --shadow-drop: 0 10px 24px rgba(0, 0, 0, 0.4);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --on-solid: #fff;
+  --ghost-bg: rgba(0, 0, 0, 0.32);
+  --ghost-border: rgba(255, 255, 255, 0.14);
+  --overlay-scrim: rgba(10, 8, 6, 0.78);
+  --brand-red: #ff0000;
 }
 
 :root[data-theme="light"] {
@@ -47,6 +53,7 @@
   --warning-soft: rgba(169, 122, 31, 0.12);
   --shadow-panel: 0 14px 32px -18px rgba(60, 45, 25, 0.28), 0 2px 6px rgba(60, 45, 25, 0.08);
   --shadow-pop: 0 10px 24px -10px rgba(60, 45, 25, 0.3), 0 2px 6px rgba(60, 45, 25, 0.1);
+  --shadow-drop: 0 10px 24px rgba(60, 45, 25, 0.22);
 }
 
 * {
@@ -73,14 +80,24 @@
   background: var(--text-tertiary);
 }
 
-/* macOS-style overlay scrollbar: hidden until the element is actively
-   scrolled (see useGlobalScrollFade), then it fades back out. */
 .scroll-fade::-webkit-scrollbar-thumb {
   background: transparent;
   transition: background 0.2s var(--ease-out);
 }
 .scroll-fade.is-scrolling::-webkit-scrollbar-thumb {
   background: var(--border-strong);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 :focus-visible {

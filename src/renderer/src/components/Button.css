@@ -11,12 +11,10 @@
   border: 1px solid transparent;
   cursor: pointer;
   white-space: nowrap;
-  color: #fff;
+  color: var(--on-solid);
   transition: transform 0.15s var(--ease-out);
 }
 
-/* One rule, every variant: hover grows the button, nothing else — the fill
-   colour is the button's identity and shouldn't shift on interaction. */
 .btn:hover:not(:disabled) {
   transform: scale(1.06);
 }
@@ -34,8 +32,8 @@
 }
 
 .btn-ghost {
-  background: rgba(0, 0, 0, 0.32);
-  border-color: rgba(255, 255, 255, 0.14);
+  background: var(--ghost-bg);
+  border-color: var(--ghost-border);
 }
 
 .btn-danger {
