@@ -1,6 +1,3 @@
-// Every icon here is purely decorative — always rendered next to a visible
-// text label or an aria-label on its own button — hence aria-hidden below
-// instead of a <title>.
 interface IconProps {
   size?: number
   className?: string

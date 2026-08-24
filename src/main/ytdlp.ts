@@ -6,9 +6,6 @@ import { app } from 'electron'
 import ffmpegPath from 'ffmpeg-static'
 import yauzl from 'yauzl'
 
-// yt-dlp-wrap is a CJS package compiled from TS (`exports.default = YTDlpWrap`).
-// Importing it as ESM double-wraps the default export under Node's CJS/ESM
-// interop, so load it via require() instead, which resolves it correctly.
 const require = createRequire(import.meta.url)
 const YTDlpWrap = require('yt-dlp-wrap').default as typeof import('yt-dlp-wrap').default
 
@@ -18,19 +15,12 @@ export const ytDlpBinaryPath = join(binDir, binaryName)
 export const ffmpegBinaryPath = (ffmpegPath as string).replace('app.asar', 'app.asar.unpacked')
 export const cookiesFilePath = join(app.getPath('userData'), 'cookies.txt')
 
-// YouTube blocks anonymous requests with a bot-check; reading cookies live
-// out of a running browser (--cookies-from-browser) is unreliable on Windows
-// (locked/encrypted cookie DB), so we rely on a manually exported
-// Netscape-format cookies.txt instead, when the user has provided one.
 export function cookiesArgs(): string[] {
   return existsSync(cookiesFilePath) ? ['--cookies', cookiesFilePath] : []
 }
 
 let ytDlpWrapPromise: Promise<InstanceType<typeof YTDlpWrap>> | null = null
 
-// Cache the in-flight promise, not just the resolved instance — two IPC
-// calls arriving before the first setup finishes would otherwise both see
-// no cached wrapper and race to download the binary twice.
 export function getYtDlp(): Promise<InstanceType<typeof YTDlpWrap>> {
   if (!ytDlpWrapPromise)
     ytDlpWrapPromise = setUpYtDlp().catch((err) => {
@@ -46,8 +36,6 @@ async function setUpYtDlp(): Promise<InstanceType<typeof YTDlpWrap>> {
     await YTDlpWrap.downloadFromGithub(ytDlpBinaryPath)
   }
 
-  // YouTube's "n" signature challenge requires a JS runtime; yt-dlp looks
-  // for `deno` on PATH, so make sure our downloaded copy is reachable there.
   await ensureDeno()
   process.env.PATH = `${binDir}${process.platform === 'win32' ? ';' : ':'}${process.env.PATH ?? ''}`
 
@@ -117,8 +105,6 @@ async function ensureDeno(): Promise<void> {
     await extractSingleFile(zipPath, denoBinaryPath)
     if (process.platform !== 'win32') chmodSync(denoBinaryPath, 0o755)
   } catch {
-    // Not fatal: yt-dlp still works without a JS runtime, just with a
-    // warning and possibly fewer available formats for some videos.
   } finally {
     await rm(zipPath, { force: true })
   }
@@ -152,9 +138,6 @@ export function assertYoutubeUrl(rawUrl: string): string {
   return parsed.toString()
 }
 
-// yt-dlp format_ids are alphanumeric with dots/dashes/underscores; the "+"
-// (combine streams) and "/" (fallback) selector syntax is appended by us,
-// not accepted here, so a crafted formatId can't rewrite the selector.
 const SAFE_FORMAT_ID = /^[\w.-]+$/
 
 export function assertSafeFormatId(formatId: string): string {
@@ -182,11 +165,6 @@ export function assertSafeContainer(container: string): string {
   return container
 }
 
-// We build the output filename ourselves (instead of relying on yt-dlp's
-// own %(title)s templating) so we know its exact final name up front and
-// can clean up any intermediate file yt-dlp fails to delete after
-// extraction/merge (a real race on Windows when something else briefly
-// holds the file open).
 export function sanitizeFilenamePart(name: string): string {
   return name
     .replace(/[\\/:*?"<>|]/g, '_')
@@ -195,9 +173,6 @@ export function sanitizeFilenamePart(name: string): string {
     .slice(0, 150)
 }
 
-// yt-dlp-wrap surfaces failures as one Error whose message is the raw
-// stdout+stderr dump; translate the recognizable cases into something a user
-// can act on instead of a wall of English log lines.
 export function friendlyYtDlpError(raw: string): string {
   if (/cookies are no longer valid/i.test(raw)) {
     return 'Cookies устарели (Chrome периодически их обновляет). Экспортируйте cookies.txt заново и загрузите его кнопкой в шапке.'
