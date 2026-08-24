@@ -1,0 +1,124 @@
+:root {
+  --bg: #131211;
+  --surface: #1a1917;
+  --surface-2: #211f1c;
+  --surface-hover: #2a2723;
+  --border: #2c2924;
+  --border-strong: #3d3831;
+  --text: #f3efe9;
+  --text-secondary: #a89e91;
+  --text-tertiary: #786e60;
+  --accent: #c46a41;
+  --accent-hover: #d47b50;
+  --accent-text: #211004;
+  --accent-soft: rgba(196, 106, 65, 0.16);
+  --success: #7fae7a;
+  --success-soft: rgba(127, 174, 122, 0.14);
+  --danger: #d4685e;
+  --danger-soft: rgba(212, 104, 94, 0.14);
+  --warning: #c99a3f;
+  --warning-soft: rgba(201, 154, 63, 0.14);
+  --radius: 10px;
+  --radius-sm: 7px;
+  --shadow-panel: 0 14px 32px -14px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-pop: 0 10px 24px -8px rgba(0, 0, 0, 0.65), 0 2px 6px rgba(0, 0, 0, 0.4);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root[data-theme="light"] {
+  --bg: #f6f2eb;
+  --surface: #fffdfa;
+  --surface-2: #f2ece1;
+  --surface-hover: #e9e0d1;
+  --border: #e3d9c8;
+  --border-strong: #cfc0a8;
+  --text: #29221a;
+  --text-secondary: #6c6151;
+  --text-tertiary: #928572;
+  --accent: #b05a32;
+  --accent-hover: #9c4d29;
+  --accent-text: #fff9f4;
+  --accent-soft: rgba(176, 90, 50, 0.13);
+  --success: #4c8a47;
+  --success-soft: rgba(76, 138, 71, 0.12);
+  --danger: #c2483d;
+  --danger-soft: rgba(194, 72, 61, 0.12);
+  --warning: #a97a1f;
+  --warning-soft: rgba(169, 122, 31, 0.12);
+  --shadow-panel: 0 14px 32px -18px rgba(60, 45, 25, 0.28), 0 2px 6px rgba(60, 45, 25, 0.08);
+  --shadow-pop: 0 10px 24px -10px rgba(60, 45, 25, 0.3), 0 2px 6px rgba(60, 45, 25, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* macOS-style overlay scrollbar: hidden until the element is actively
+   scrolled (see useGlobalScrollFade), then it fades back out. */
+.scroll-fade::-webkit-scrollbar-thumb {
+  background: transparent;
+  transition: background 0.2s var(--ease-out);
+}
+.scroll-fade.is-scrolling::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Manrope", -apple-system, "Segoe UI", system-ui, ui-sans-serif, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16.5px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background 0.2s var(--ease-out),
+    color 0.2s var(--ease-out);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: spin 0.7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 1.4s;
+  }
+}

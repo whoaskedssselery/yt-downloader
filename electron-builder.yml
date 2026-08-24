@@ -1,0 +1,16 @@
+appId: com.ytdownloader.app
+productName: YT Downloader
+directories:
+  buildResources: build
+  output: release
+files:
+  - out/**/*
+  - package.json
+asarUnpack:
+  - '**/node_modules/ffmpeg-static/**'
+win:
+  target: nsis
+mac:
+  target: dmg
+linux:
+  target: AppImage
