@@ -1,0 +1,44 @@
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: var(--bg);
+}
+
+.splash-badge {
+  position: relative;
+  display: flex;
+  width: 88px;
+  height: 88px;
+  filter: drop-shadow(var(--shadow-drop));
+}
+
+.splash-download-badge {
+  position: absolute;
+  left: 75%;
+  top: 75%;
+  width: 46.875%;
+  height: 46.875%;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2.5px solid var(--bg);
+  background: var(--accent);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.splash-word {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-tertiary);
+}

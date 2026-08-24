@@ -1,0 +1,25 @@
+.logo {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.logo-badge {
+  display: block;
+}
+
+.logo-download-badge {
+  position: absolute;
+  left: 75%;
+  top: 75%;
+  width: 46.875%;
+  height: 46.875%;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -22,7 +22,6 @@ interface ActiveDownload {
   process: ChildProcess | undefined
 }
 
-// Minimal shape of yt-dlp's --dump-json output — only the fields we read.
 interface YtDlpFormatRaw {
   format_id: string | number
   ext: string
@@ -51,10 +50,6 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-// yt-dlp-wrap's own AbortSignal handling shells out to `taskkill` and
-// silently swallows any failure, so a cancel that doesn't actually land is
-// invisible. Kill the process tree ourselves too, with the failure surfaced
-// to the console instead of disappearing.
 function killProcessTree(proc: ChildProcess | undefined): void {
   if (!proc?.pid) return
   if (process.platform === 'win32') {
@@ -76,18 +71,11 @@ async function unlinkWithRetry(path: string, attempts = 10): Promise<void> {
       await unlink(path)
       return
     } catch {
-      // Windows: AV/indexer can hold a freshly-written file open for a few
-      // seconds — back off (up to ~1.5s per step, ~15s total) and retry
-      // instead of giving up after one shot.
       await sleep(Math.min(1500, 200 * (i + 1)))
     }
   }
 }
 
-// yt-dlp deletes the intermediate download after merge/extraction, but on
-// Windows another process (AV scan, indexer) can briefly hold the file open
-// and make that delete silently fail while yt-dlp still exits 0. Sweep for
-// leftovers with our known base name and remove anything but the final file.
 async function cleanupIntermediateFiles(
   outputDir: string,
   baseName: string,
@@ -101,14 +89,9 @@ async function cleanupIntermediateFiles(
         .filter((name) => name.startsWith(baseName) && name !== finalName)
         .map((name) => unlinkWithRetry(join(outputDir, name)))
     )
-  } catch {
-    // best-effort cleanup only
-  }
+  } catch {}
 }
 
-// A cancelled download shouldn't leave anything behind — unlike a finished
-// one, there's no "final" file to keep, so sweep every file matching this
-// attempt's base name (partial .part downloads, half-merged output, etc).
 async function cleanupAllFiles(outputDir: string, baseName: string): Promise<void> {
   try {
     const entries = await readdir(outputDir)
@@ -117,9 +100,7 @@ async function cleanupAllFiles(outputDir: string, baseName: string): Promise<voi
         .filter((name) => name.startsWith(baseName))
         .map((name) => unlinkWithRetry(join(outputDir, name)))
     )
-  } catch {
-    // best-effort cleanup only
-  }
+  } catch {}
 }
 
 function createWindow(): void {
@@ -129,6 +110,7 @@ function createWindow(): void {
     minWidth: 760,
     minHeight: 520,
     autoHideMenuBar: true,
+    ...(app.isPackaged ? {} : { icon: join(__dirname, '../../resources/icon.png') }),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: true
@@ -180,9 +162,6 @@ app.whenReady().then(() => {
   ipcMain.handle('yt:info', async (_event, url: string) => {
     const safeUrl = assertYoutubeUrl(url)
     const ytDlp = await getYtDlp()
-    // Without an explicit -f, yt-dlp-wrap forces "-f best", which several
-    // YouTube videos no longer expose as a single pre-merged format — pass a
-    // selector with a guaranteed fallback so info lookup never fails here.
     let raw: YtDlpVideoInfoRaw
     try {
       raw = await ytDlp.getVideoInfo([
@@ -263,11 +242,6 @@ app.whenReady().then(() => {
     const baseName = `${sanitizeFilenamePart(title)} [${sanitizeFilenamePart(videoId)}]`
     const finalExt =
       mode === 'video' ? assertSafeContainer(videoContainer) : assertSafeAudioFormat(audioFormat)
-    // Video and audio downloads of the same video share this baseName, so a
-    // previously finished download (e.g. the .mp4) sits right next to this
-    // run's own intermediates. Download under a per-run temp marker instead
-    // of the clean name, so cleanup can only ever touch THIS run's files,
-    // then rename to the clean name once we've confirmed success.
     const tempBaseName = `${baseName}.${downloadId}`
     const outputTemplate = join(outputDir, `${tempBaseName}.%(ext)s`)
     const args =
@@ -275,9 +249,6 @@ app.whenReady().then(() => {
         ? [
             safeUrl,
             '-f',
-            // Video-only streams need a separate audio track merged in; prefer
-            // m4a/AAC since opus-in-mp4 silently fails to play in some
-            // players even though the track is technically present.
             `${safeFormatId}+bestaudio[ext=m4a]/${safeFormatId}+bestaudio/best`,
             '--merge-output-format',
             finalExt,
@@ -311,10 +282,6 @@ app.whenReady().then(() => {
 
     return new Promise<{ ok: true } | { ok: false; error: string; cancelled?: boolean }>(
       (resolve) => {
-        // On POSIX, spawn yt-dlp as its own process-group leader so
-        // killProcessTree's negative-pid kill can reach it *and* its ffmpeg
-        // child — without `detached`, the child stays in our group and a
-        // group-kill targets a group that doesn't exist, silently no-op'ing.
         const spawnOptions = process.platform === 'win32' ? {} : { detached: true }
         const emitter = ytDlp.exec(args, spawnOptions, controller.signal)
         active.process = emitter.ytDlpProcess
@@ -343,10 +310,6 @@ app.whenReady().then(() => {
             return
           }
 
-          // yt-dlp exiting 0 doesn't guarantee the postprocessor actually
-          // produced a real file (e.g. ffmpeg got killed mid-conversion) —
-          // verify the temp final file exists and is non-empty before
-          // trusting it, and don't touch anything else unless it does.
           const tempFinalPath = join(outputDir, `${tempBaseName}.${finalExt}`)
           let finalSize = 0
           try {
@@ -359,12 +322,7 @@ app.whenReady().then(() => {
             const cleanFinalPath = join(outputDir, `${baseName}.${finalExt}`)
             try {
               await rename(tempFinalPath, cleanFinalPath)
-            } catch {
-              // Cross-device or locked rename failure — leave it under the
-              // temp name rather than lose the file; still counts as success.
-            }
-            // Don't make the user wait on cleanup retries (up to ~15s worst
-            // case) — report success now and let it finish in the background.
+            } catch {}
             void cleanupIntermediateFiles(outputDir, tempBaseName, finalExt)
             resolve({ ok: true })
           } else {
