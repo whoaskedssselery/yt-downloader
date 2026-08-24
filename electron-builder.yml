@@ -14,3 +14,7 @@ mac:
   target: dmg
 linux:
   target: AppImage
+publish:
+  provider: github
+  owner: whoaskedssselery
+  repo: yt-downloader
